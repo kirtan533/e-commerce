@@ -2,11 +2,14 @@
 
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { PiShoppingCartSimpleThin } from "react-icons/pi";
 
 export default function Navbar() {
   const { cart } = useCart();
   const [open, setOpen] = useState();
+  const pathname = usePathname();
 
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -14,19 +17,32 @@ export default function Navbar() {
     <nav className="bg-white border-b shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="text-xl font-bold text-gray-800">
-          MyStore
+        <Link
+          href="/"
+          className="text-gray-700 text-xl font-semibold flex items-center"
+        >
+          Estore
+          <span className="ml-3">
+            <PiShoppingCartSimpleThin size={26} />
+          </span>
         </Link>
-
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-6">
-          <Link href="/products" className="text-gray-700 hover:text-black">
+          <Link
+            href="/"
+            className={`${pathname === "/" ? "text-indigo-400" : "text-black"}`}
+          >
+            Home
+          </Link>
+          <Link
+            href="/products"
+            className={`${pathname === "/products" ? "text-indigo-400" : "text-black"}`}
+          >
             Products
           </Link>
-
           <Link
             href="/cart"
-            className="relative text-gray-700 hover:text-black"
+            className={`${pathname === "/cart" ? "text-indigo-400" : "text-black"} relative`}
           >
             Cart
             {totalItems > 0 && (
