@@ -4,6 +4,10 @@ button {
   cursor: pointer;
 }
 
+body {
+  scroll-behavior: smooth;
+}
+
 /* 🔥 shimmer animation */
 @keyframes shimmer {
   0% {

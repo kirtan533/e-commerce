@@ -1,9 +1,24 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
+import { auth } from "@/firebase/config";
+import { onAuthStateChanged } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity } = useCart();
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscibe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/login");
+      }
+    });
+    return () => unsubscibe();
+  }, []);
 
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 

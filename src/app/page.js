@@ -5,9 +5,21 @@ import ProductCard from "@/components/ProductCard";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
-  const { addToCart } = useCart(); // ✅ FIX
+  const { addToCart } = useCart();
+  const { user } = useAuth();
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, [user]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["featured-products"],

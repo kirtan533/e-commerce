@@ -2,19 +2,26 @@
 
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export default function ProductCard({ product, onPrefetch }) {
   const { addToCart } = useCart();
 
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  const currentUrl = `${pathname}?${searchParams.toString()}`;
+
   const handleAdd = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     addToCart(product);
   };
 
   return (
     <div className="group bg-white rounded-xl border hover:shadow-lg transition p-4 flex flex-col h-full">
       <Link
-        href={`/products/${product.id}?from=${encodeURIComponent(window.location.pathname + window.location.search)}`}
+        href={`/products/${product.id}?from=${encodeURIComponent(currentUrl)}`}
         onMouseEnter={() => onPrefetch?.(product.id)}
         className="block"
       >

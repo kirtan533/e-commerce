@@ -3,8 +3,11 @@
 import { fetchProductById } from "@/api/products";
 import ProductDetailsSkeleton from "@/components/ProductDetailsSkeleton";
 import { useCart } from "@/context/CartContext";
+import { auth } from "@/firebase/config";
 import { useQuery } from "@tanstack/react-query";
+import { onAuthStateChanged } from "firebase/auth";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function ProductDetails() {
   const params = useParams();
@@ -13,15 +16,30 @@ export default function ProductDetails() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const from = searchParams.get("from");
+  const rawFrom = searchParams.get("from");
+  const from = rawFrom ? decodeURIComponent(rawFrom) : "/products";
 
   const { addToCart } = useCart();
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["product", id],
     queryFn: fetchProductById,
-    enabled: !!id,
+    enabled: !!id && isAuthChecked,
   });
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.replace("/login");
+      } else {
+        setIsAuthChecked(true);
+      }
+    });
+    return () => unsubscribe();
+  }, [router]);
+
+  if (!isAuthChecked) return null;
 
   if (isLoading) return <ProductDetailsSkeleton />;
 
