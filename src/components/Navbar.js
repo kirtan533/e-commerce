@@ -2,16 +2,19 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import { auth } from "@/firebase/config";
 import { signOut } from "firebase/auth";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { FaHeart } from "react-icons/fa";
 import { PiShoppingCartSimpleThin } from "react-icons/pi";
 
 export default function Navbar() {
   const { cart } = useCart();
   const { user } = useAuth();
+  const { wishlist } = useWishlist();
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -21,7 +24,11 @@ export default function Navbar() {
     router.replace("/login");
   };
 
-  const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const totalItems = user
+    ? cart.reduce((acc, item) => acc + item.quantity, 0)
+    : 0;
+
+  const totalWishlist = user ? wishlist.length : 0;
 
   return (
     <nav className="bg-white border-b shadow-sm">
@@ -49,6 +56,19 @@ export default function Navbar() {
             className={`${pathname === "/products" ? "text-indigo-400" : "text-black"}`}
           >
             Products
+          </Link>
+          {/* wishlist  */}
+          <Link
+            href="/wishlist"
+            className={`relative flex items-center gap-1 ${pathname === "/wishlist" ? "text-indigo-500" : "text-black"}`}
+          >
+            <FaHeart />
+            Wishlist
+            {totalWishlist > 0 && (
+              <span className="absolute -top-3 -right-4 bg-red-500 text-white text-xs px-2 py-[2px] rounded-full">
+                {totalWishlist}
+              </span>
+            )}
           </Link>
           <Link
             href="/cart"
@@ -92,18 +112,37 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {open && (
         <div className="md:hidden px-4 pb-4 flex flex-col gap-3 border-t">
-          <Link href="/" onClick={() => setOpen(false)}>
+          <Link
+            href="/"
+            onClick={() => setOpen(false)}
+            className={`${pathname === "/" ? "text-indigo-400" : "text-black"}`}
+          >
             Home
           </Link>
-
-          <Link href="/products" onClick={() => setOpen(false)}>
+          <Link
+            href="/products"
+            onClick={() => setOpen(false)}
+            className={`${pathname === "/products" ? "text-indigo-400" : "text-black"}`}
+          >
             Products
           </Link>
-
+          {/* wishlist  */}
+          <Link
+            href="/wishlist"
+            onClick={() => setOpen(false)}
+            className="relative flex justify-between"
+          >
+            <span>Wishlist</span>
+            {totalWishlist > 0 && (
+              <span className="absolute left-14 top-1 bg-red-500 text-white text-xs px-2 rounded-full">
+                {totalWishlist}
+              </span>
+            )}
+          </Link>
           <Link
             href="/cart"
             onClick={() => setOpen(false)}
-            className="flex justify-between"
+            className={`${pathname === "/cart" ? "text-indigo-400" : "text-black"} flex justify-start`}
           >
             Cart
             {totalItems > 0 && (

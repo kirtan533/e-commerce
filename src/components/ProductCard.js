@@ -1,11 +1,16 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
+import { FaHeart } from "react-icons/fa";
 
 export default function ProductCard({ product, onPrefetch }) {
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
+
+  const isWish = isInWishlist(product.id);
 
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -18,8 +23,24 @@ export default function ProductCard({ product, onPrefetch }) {
     addToCart(product);
   };
 
+  const handleWishlist = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(product);
+  };
+
   return (
-    <div className="group bg-white rounded-xl border hover:shadow-lg transition p-4 flex flex-col h-full">
+    <div className="relative group bg-white rounded-xl border hover:shadow-lg transition p-4 flex flex-col h-full">
+      {/*  Wishlist Button */}
+      <button
+        onClick={handleWishlist}
+        className="absolute top-3 right-3 z-20 bg-white/80 backdrop-blur p-2 rounded-full shadow hover:scale-110 transition"
+      >
+        <FaHeart
+          className={`text-lg ${isWish ? "text-red-500" : "text-gray-300"}`}
+        />
+      </button>
+      {/*  Clickable Area */}
       <Link
         href={`/products/${product.id}?from=${encodeURIComponent(currentUrl)}`}
         onMouseEnter={() => onPrefetch?.(product.id)}
@@ -41,7 +62,10 @@ export default function ProductCard({ product, onPrefetch }) {
           ₹ {product.price}
         </p>
       </Link>
+
       <div className="flex-grow" />
+
+      {/* Add to Cart */}
       <button
         onClick={handleAdd}
         className="mt-3 bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition"
